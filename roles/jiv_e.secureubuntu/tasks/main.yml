@@ -1,0 +1,51 @@
+---
+- name: Update APT package cache
+  apt: update_cache=yes
+- name: Run apt-get upgrade
+  apt: upgrade=full
+# Basic server hardening - See https://library.linode.com/securing-your-server
+- name: Create group based on 'user' variable 
+  group: name={{ user }} state=present
+- name: Create user based on 'user' variable 
+  user: name={{ user }} password={{ password }} state=present group={{ user }} groups=sudo shell=/bin/bash
+- name: Create .ssh folder in users home folder
+  file: path=/home/{{ user }}/.ssh state=directory recurse=yes owner={{ user }} group={{ user }} mode=0700
+- name : Copy authorized SSH keys in place
+  copy: src=ssh/authorized_keys dest=/home/{{ user }}/.ssh/authorized_keys
+          owner={{ user }} group={{ user }} mode=0600
+- name : Copy private ssh key in place
+  copy: src=ssh/id_rsa dest=/home/{{ user }}/.ssh/id_rsa
+          owner={{ user }} group={{ user }} mode=0600
+- name : Copy known_hosts in place
+  copy: src=ssh/known_hosts dest=/home/{{ user }}/.ssh/known_hosts
+          owner={{ user }} group={{ user }} mode=0600
+- name: Prevent login with password
+  template: src=ssh/sshd_config.j2 dest=/etc/ssh/sshd_config
+          owner=root group=root mode=0644
+  notify: restart ssh
+- name: Create a basic firewall settings file
+  template: src=iptables/iptables.firewall.rules.j2 dest=/etc/iptables.firewall.rules
+          owner=root group=root mode=0644
+  notify: activate firewall rules
+- name: Create firewall startup script
+  copy: src=iptables/firewall_startup.sh dest=/etc/network/if-pre-up.d/firewall
+          owner=root group=root mode=0755
+- name: Install fail2ban
+  apt: pkg=fail2ban state=installed
+- name: Create local configuration file for fail2ban
+  template: src=fail2ban/jail.local.j2 dest=/etc/fail2ban/jail.local
+          owner=root group=root mode=0644
+  notify: restart fail2ban
+# Some other security related configuration
+
+# TODO: Implement automatic updates 
+#- name: Install automatic security updates
+#  apt: pkg=unattended-upgrades state=installed
+#- name: Configure automatic security updates
+- name: Install LogWatch to monitor server logs
+  apt: pkg={{ item }} state=installed
+  with_items:
+   - logwatch
+   - libdate-manip-perl
+- name: Configure LogWatch
+  command: logwatch --mailto {{ adminEmail }} --output mail --format html --range 'between -7 days and today'
