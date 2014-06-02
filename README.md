@@ -31,7 +31,7 @@ Requires
 ------------
 * Ansible (tested on 1.6)
   - http://docs.ansible.com/intro_installation.html
-* Ubuntu server (tested on 12.04 LTS)
+* Ubuntu server (tested on vanilla 12.04 LTS)
 
 Usage
 -------------
