@@ -47,7 +47,7 @@ Usage
    $ cat ~/.ssh/id_rsa.pub >> ./authorized_keys
    ```
 8. You may add some known_hosts if you want
-9. Run
+9. Cd to the repository root and run
    ```
    $ ansible-playbook -i hosts play.yml -c paramiko -k
    ```
