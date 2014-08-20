@@ -46,6 +46,15 @@ adminEmail: admin@myhost.com
 #
 # - name: Secure Ubuntu server 
 #   port: <port number>
+#
+# Thoughts on changing the SSH port:
+# 
+# Bad idea?
+# https://www.adayinthelifeof.nl/2012/03/12/why-putting-ssh-on-another-port-than-22-is-bad-idea/
+#
+# Good idea?
+# http://danielmiessler.com/blog/putting-ssh-another-port-good-idea/
+#
 ################################################################################
 
 sshPort: 22
