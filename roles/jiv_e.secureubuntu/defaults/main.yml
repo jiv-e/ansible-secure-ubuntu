@@ -1,0 +1,70 @@
+---
+################################################################################
+# TIP: Good place to override the following variables per server is in the
+# hosts file. E.g.
+# 
+# [servers]
+# xxx.xxx.xx.xxx   user=firstuser adminEmail=first@myhost.com password=...
+# xxx.xxx.xx.xxx   user=seconduser adminEmail=first@myhost.com password=...
+# 
+# More possibilities:
+# http://docs.ansible.com/intro_inventory.html#host-variables
+# http://docs.ansible.com/playbooks_variables.html#variables-defined-in-inventory
+################################################################################
+
+################################################################################
+# System user
+################################################################################
+
+user: me
+
+################################################################################
+# User password
+# The following hash will be copied as is to the /etc/shadow file.
+# If you don't want to store your password hashes as plain text consider using
+# ansible-vault. See http://docs.ansible.com/playbooks_vault.html.
+#
+# TIP: You can make this kind of password hash with "openssl passwd -salt <salt>
+#      -1 <plaintext-password>"
+# E.g. $ openssl passwd -salt SaltySalt -1 mysupertightpassword
+################################################################################
+
+password: $1$SaltySal$I8.h05mt1XsjaCka6Ddb2/
+
+################################################################################
+# Admin email - logwatch and fail2ban emails are sent to this address
+################################################################################
+
+adminEmail: admin@myhost.com
+
+################################################################################
+# SSH                                                                           
+# If you change this the Ansible run will be interrupted when the SSH is
+# restarted. After changing this remember to add a parameter
+# '-e ansible_ssh_port=<port number>' to your ansible-playbook commands.
+# You can also add the port number to your ./play.yml file. E.g.
+#
+# - name: Secure Ubuntu server 
+#   port: <port number>
+#
+# Thoughts on changing the SSH port:
+# 
+# Bad idea?
+# https://www.adayinthelifeof.nl/2012/03/12/why-putting-ssh-on-another-port-than-22-is-bad-idea/
+#
+# Good idea?
+# http://danielmiessler.com/blog/putting-ssh-another-port-good-idea/
+#
+################################################################################
+
+sshPort: 22
+
+################################################################################
+# Fail2Ban 
+################################################################################
+
+# Max allowed failed password attempts
+maxRetry: 4
+
+# Ban time in seconds
+banTime: 15
