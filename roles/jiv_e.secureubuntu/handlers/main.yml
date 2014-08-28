@@ -4,4 +4,4 @@
 - name: restart ssh
   service: name=ssh state=restarted
 - name: activate firewall rules
-  shell: iptables-restore < /etc/iptables.firewall.rules
+  shell: iptables-restore < /etc/iptables.firewall.rules; iptables -L -n > /etc/iptables.initial.state

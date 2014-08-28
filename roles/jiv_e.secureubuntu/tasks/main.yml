@@ -13,6 +13,8 @@
 - name : Copy authorized SSH keys in place
   copy: src=ssh/authorized_keys dest=/home/{{ user }}/.ssh/authorized_keys
           owner={{ user }} group={{ user }} mode=0600
+#TODO Add on option to append ~/.ssh/id_rsa.pub to authorized keys automatically
+#TODO Add on option for automatically creating new keys on server with ssh-keygen
 - name : Copy private ssh key in place
   copy: src=ssh/id_rsa dest=/home/{{ user }}/.ssh/id_rsa
           owner={{ user }} group={{ user }} mode=0600
@@ -23,10 +25,20 @@
   template: src=ssh/sshd_config.j2 dest=/etc/ssh/sshd_config
           owner=root group=root mode=0644
   notify: restart ssh
-- name: Create a basic firewall settings file
+- name: Create a basic firewall settings from template
   template: src=iptables/iptables.firewall.rules.j2 dest=/etc/iptables.firewall.rules
-          owner=root group=root mode=0644
-  notify: activate firewall rules
+            owner=root group=root mode=0644
+
+- name: Check if iptables firewall configuration differs from the template
+  raw: diff /etc/iptables.initial.state <(iptables -L -n)
+  register: iptablesCheck
+  changed_when: iptablesCheck.rc != 0 
+  failed_when: iptablesCheck.rc > 1 
+
+- name: Activate firewall rules
+  shell: iptables-restore < /etc/iptables.firewall.rules; iptables -L -n > /etc/iptables.initial.state;
+  when: iptablesCheck.rc != 0
+
 - name: Create firewall startup script
   copy: src=iptables/firewall_startup.sh dest=/etc/network/if-pre-up.d/firewall
           owner=root group=root mode=0755
